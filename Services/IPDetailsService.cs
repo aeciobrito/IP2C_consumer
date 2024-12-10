@@ -20,11 +20,9 @@ namespace IP2C_consumer.Services
 
         public async Task<Country> GetIPDetailsAsync(string ipAddress)
         {
-            // 1. Check Cache
             var country = await _cacheService.GetCachedCountryAsync(ipAddress);
             if (country != null) return country;
 
-            // 2. Check Database
             country = await _dbContext.IPAddresses
                 .Where(ip => ip.IP == ipAddress)
                 .Select(ip => ip.Country)
@@ -36,11 +34,9 @@ namespace IP2C_consumer.Services
                 return country;
             }
 
-            // 3. Fallback to IP2C
             country = await _ip2cService.FetchCountryFromIPAsync(ipAddress);
             if (country != null)
             {
-                // Persist in Database
                 var dbCountry = await _dbContext.Countries
                     .FirstOrDefaultAsync(c => c.ThreeLetterCode == country.ThreeLetterCode);
 
@@ -67,16 +63,13 @@ namespace IP2C_consumer.Services
                 _dbContext.IPAddresses.Add(ipAddressEntry);
                 await _dbContext.SaveChangesAsync();
 
-                // Cache the result
                 await _cacheService.CacheCountryAsync(ipAddress, dbCountry);
             }
 
             return country;
         }
 
-        public bool IsValidIpAddress(string ipAddress)
-        {
-            return IpAddressValidator.IsValidIpAddress(ipAddress);
-        }
+        public bool IsValidIpAddress(string ipAddress) 
+            => IPAddressValidator.IsValidIpAddress(ipAddress);
     }
 }
