@@ -7,18 +7,14 @@ using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
-// Add Redis
 builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
     ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"]));
 
-// Add HttpClient
 builder.Services.AddHttpClient<IIP2CService, IP2CService>();
 
-// Add other services
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 builder.Services.AddScoped<IIPDetailsService, IPDetailsService>();
 
@@ -33,13 +29,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Minimal API endpoint
 app.MapGet("/api/ip/{ipAddress}", async (string ipAddress, IIPDetailsService ipDetailsService) =>
 {
-    /// <summary>
-    /// Fail Fast (Early Validation)
-    /// Ensures that invalid input is detected as early as possible, preventing unnecessary operations or cascading failures deeper into the system.
-    /// </summary>
     if (!ipDetailsService.IsValidIpAddress(ipAddress))
         return Results.BadRequest("Invalid IP address");
 

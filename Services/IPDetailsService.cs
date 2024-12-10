@@ -5,15 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IP2C_consumer.Services
 {
-    /// <summary>
-    /// Service for fetching country details based on an IP address.
-    /// This service acts as a facade that abstracts away the complexity of multiple services (cache, database, and external IP service).
-    /// It follows a caching strategy to ensure efficient retrieval of data:
-    /// 1. Check Cache
-    /// 2. Check Database
-    /// 3. Fallback to External Service (IP2C)
-    /// </summary>
-    /// https://refactoring.guru/design-patterns/facade
     public class IPDetailsService : IIPDetailsService
     {
         private readonly ICacheService _cacheService;
