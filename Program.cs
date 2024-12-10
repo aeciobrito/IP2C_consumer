@@ -14,11 +14,10 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
     ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"]));
 
 builder.Services.AddHttpClient<IIP2CService, IP2CService>();
-
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 builder.Services.AddScoped<IIPDetailsService, IPDetailsService>();
 builder.Services.AddHostedService<IPUpdaterService>();
-
+builder.Services.AddScoped<IIPReportService, IPReportService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -44,6 +43,23 @@ app.MapGet("/api/ip/{ipAddress}", async (string ipAddress, IIPDetailsService ipD
     return Results.Ok(new IpDetailsDTO(country.Name, country.TwoLetterCode, country.ThreeLetterCode));
 });
 
+app.MapGet("/api/reports/country-addresses", async (HttpContext httpContext, AppDbContext dbContext, IIPReportService reportService) =>
+{
+    var countryCodesParam = httpContext.Request.Query["countryCodes"].ToString();
+    string[] countryCodes = string.IsNullOrWhiteSpace(countryCodesParam)
+        ? null
+        : countryCodesParam.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+    var reportItems = await reportService.GenerateCountryAddressReport(dbContext, countryCodes);
+
+    return Results.Ok(reportItems);
+});
+
+
+
 app.UseHttpsRedirection();
+
+app.UseHttpsRedirection();
+
 
 app.Run();

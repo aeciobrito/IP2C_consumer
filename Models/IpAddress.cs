@@ -12,5 +12,5 @@ namespace IP2C_consumer.Models
         public string IP { get; set; }            
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-    }        
+    }
 }
