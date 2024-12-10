@@ -17,6 +17,8 @@ builder.Services.AddHttpClient<IIP2CService, IP2CService>();
 
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 builder.Services.AddScoped<IIPDetailsService, IPDetailsService>();
+builder.Services.AddHostedService<IPUpdaterService>();
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
